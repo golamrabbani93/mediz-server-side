@@ -11,18 +11,23 @@ app.use(express.json());
 // *start Mongodb
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.qh4qhby.mongodb.net/?retryWrites=true&w=majority`;
-console.log('🚀🚀: uri', uri);
 const client = new MongoClient(uri, {
 	useNewUrlParser: true,
 	useUnifiedTopology: true,
 	serverApi: ServerApiVersion.v1,
 });
-client.connect((err) => {
-	const collection = client.db('test').collection('devices');
-	console.log('database connected');
-	client.close();
-});
 
+async function run() {
+	//*get all services
+	app.get('/services', async (req, res) => {
+		const medizCollection = client.db('mediz').collection('Services');
+		const query = {};
+		const cursor = medizCollection.find(query);
+		const result = await cursor.toArray();
+		console.log('🚀🚀: run -> result', result);
+	});
+}
+run().catch((err) => console.log(err));
 app.get('/', (req, res) => {
 	res.send('Mediz-Server is Running');
 });
