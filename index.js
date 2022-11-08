@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const {MongoClient, ServerApiVersion} = require('mongodb');
+const {MongoClient, ServerApiVersion, ObjectId} = require('mongodb');
 const port = process.env.PORT || 5000;
 const app = express();
 require('dotenv').config();
@@ -19,10 +19,10 @@ const client = new MongoClient(uri, {
 
 async function run() {
 	//*get all services
+	const medizCollection = client.db('mediz').collection('Services');
 	app.get('/services', async (req, res) => {
 		//*set limit to load services
 		const limit = parseInt(req.query.limit);
-		const medizCollection = client.db('mediz').collection('Services');
 		const query = {};
 		const cursor = medizCollection.find(query);
 		if (limit) {
@@ -32,6 +32,14 @@ async function run() {
 			const result = await cursor.toArray();
 			res.send(result);
 		}
+	});
+	//*get service by ID
+	app.get('/service/:id', async (req, res) => {
+		//*get Service Id
+		const id = req.params.id;
+		const query = {_id: ObjectId(id)};
+		const result = await medizCollection.findOne(query);
+		res.send(result);
 	});
 }
 run().catch((err) => console.log(err));
