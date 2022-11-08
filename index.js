@@ -24,6 +24,7 @@ async function run() {
 		const query = {};
 		const cursor = medizCollection.find(query);
 		const result = await cursor.toArray();
+		res.send(result);
 		console.log('🚀🚀: run -> result', result);
 	});
 }
