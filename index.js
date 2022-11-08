@@ -20,12 +20,18 @@ const client = new MongoClient(uri, {
 async function run() {
 	//*get all services
 	app.get('/services', async (req, res) => {
+		//*set limit to load services
+		const limit = parseInt(req.query.limit);
 		const medizCollection = client.db('mediz').collection('Services');
 		const query = {};
 		const cursor = medizCollection.find(query);
-		const result = await cursor.toArray();
-		res.send(result);
-		console.log('🚀🚀: run -> result', result);
+		if (limit) {
+			const result = await cursor.limit(limit).toArray();
+			res.send(result);
+		} else {
+			const result = await cursor.toArray();
+			res.send(result);
+		}
 	});
 }
 run().catch((err) => console.log(err));
