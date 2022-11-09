@@ -59,7 +59,7 @@ async function run() {
 				reviewID: id,
 			};
 		}
-		const cursor = reviewCollection.find(query);
+		const cursor = reviewCollection.find(query).sort({date: -1});
 		const result = await cursor.toArray();
 		res.send(result);
 	});
