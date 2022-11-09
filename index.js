@@ -20,6 +20,7 @@ const client = new MongoClient(uri, {
 async function run() {
 	//*get all services
 	const medizCollection = client.db('mediz').collection('Services');
+	const reviewCollection = client.db('mediz').collection('Reviews');
 	app.get('/services', async (req, res) => {
 		//*set limit to load services
 		const limit = parseInt(req.query.limit);
@@ -39,6 +40,12 @@ async function run() {
 		const id = req.params.id;
 		const query = {_id: ObjectId(id)};
 		const result = await medizCollection.findOne(query);
+		res.send(result);
+	});
+	//*send review server to database
+	app.post('/review', async (req, res) => {
+		const review = req.body;
+		const result = await reviewCollection.insertOne(review);
 		res.send(result);
 	});
 }
