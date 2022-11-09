@@ -4,6 +4,8 @@ const {MongoClient, ServerApiVersion, ObjectId} = require('mongodb');
 const port = process.env.PORT || 5000;
 const app = express();
 require('dotenv').config();
+
+var isodate = new Date().toISOString();
 //*middlware
 app.use(cors());
 app.use(express.json());
@@ -45,7 +47,8 @@ async function run() {
 	//*send review server to database
 	app.post('/review', async (req, res) => {
 		const review = req.body;
-		const result = await reviewCollection.insertOne(review);
+		const fullReview = {...review, date: isodate};
+		const result = await reviewCollection.insertOne(fullReview);
 		res.send(result);
 	});
 	//*get review by sevice id
