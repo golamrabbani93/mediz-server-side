@@ -81,6 +81,14 @@ async function run() {
 		const result = await reviewCollection.deleteOne(query);
 		res.send(result);
 	});
+	//*get specific review by id
+	app.get('/review/:id', async (req, res) => {
+		//*get review Id
+		const id = req.params.id;
+		const query = {_id: ObjectId(id)};
+		const result = await reviewCollection.findOne(query);
+		res.send(result);
+	});
 }
 run().catch((err) => console.log(err));
 app.get('/', (req, res) => {
