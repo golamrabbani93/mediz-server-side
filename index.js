@@ -3,6 +3,7 @@ const cors = require('cors');
 const {MongoClient, ServerApiVersion, ObjectId} = require('mongodb');
 const port = process.env.PORT || 5000;
 const app = express();
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
 app.use(cors());
 app.use(express.json());
@@ -15,11 +16,33 @@ const client = new MongoClient(uri, {
 	useUnifiedTopology: true,
 	serverApi: ServerApiVersion.v1,
 });
+function verifyJWT(req, res, next) {
+	const authHeader = req.headers.authorization;
+	console.log('🚀🚀: verifyJWT -> authHeader', authHeader);
 
+	if (!authHeader) {
+		return res.status(401).send({message: 'unauthorized access'});
+	}
+	const token = authHeader.split(' ')[1];
+
+	jwt.verify(token, process.env.JWT_WEB_TOKEN, function (err, decoded) {
+		if (err) {
+			return res.status(403).send({message: 'Forbidden access'});
+		}
+		req.decoded = decoded;
+		next();
+	});
+}
 async function run() {
 	//*get all services
 	const medizCollection = client.db('mediz').collection('Services');
 	const reviewCollection = client.db('mediz').collection('Reviews');
+
+	app.post('/jwt', (req, res) => {
+		const user = req.body;
+		const token = jwt.sign(user, process.env.JWT_WEB_TOKEN, {expiresIn: '1d'});
+		res.send({token});
+	});
 	app.get('/services', async (req, res) => {
 		//*set limit to load services
 		const limit = parseInt(req.query.limit);
@@ -38,7 +61,6 @@ async function run() {
 		var isodate = new Date();
 		var localDateTime = isodate.toLocaleDateString() + ' ' + isodate.toLocaleTimeString();
 		const service = req.body;
-		console.log('🚀🚀: run -> service', service);
 		const fullServices = {...service, date: localDateTime};
 		const result = await medizCollection.insertOne(fullServices);
 		res.send(result);
@@ -73,7 +95,13 @@ async function run() {
 		res.send(result);
 	});
 	//*get myreviews by user email
-	app.get('/myreviews', async (req, res) => {
+	app.get('/myreviews', verifyJWT, async (req, res) => {
+		const decoded = req.decoded;
+
+		if (decoded.email !== req.query.email) {
+			res.status(403).send({message: 'unauthorized access'});
+		}
+		let query = {};
 		const email = req.query.email;
 		if (email) {
 			query = {
