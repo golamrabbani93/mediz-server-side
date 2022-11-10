@@ -89,6 +89,21 @@ async function run() {
 		const result = await reviewCollection.findOne(query);
 		res.send(result);
 	});
+	app.put('/review/:id', async (req, res) => {
+		const id = req.params.id;
+		const review = req.body;
+		console.log(review);
+		const filter = {_id: ObjectId(id)};
+		const option = {upsert: true};
+		const updateReview = {
+			$set: {
+				name: review.name,
+				message: review.message,
+			},
+		};
+		const result = await reviewCollection.updateOne(filter, updateReview, option);
+		res.send(result);
+	});
 }
 run().catch((err) => console.log(err));
 app.get('/', (req, res) => {
