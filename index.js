@@ -24,7 +24,7 @@ async function run() {
 		//*set limit to load services
 		const limit = parseInt(req.query.limit);
 		const query = {};
-		const cursor = medizCollection.find(query);
+		const cursor = medizCollection.find(query).sort({date: -1});
 		if (limit) {
 			const result = await cursor.limit(limit).toArray();
 			res.send(result);
