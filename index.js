@@ -33,6 +33,16 @@ async function run() {
 			res.send(result);
 		}
 	});
+	//*send service server to database
+	app.post('/services', async (req, res) => {
+		var isodate = new Date();
+		var localDateTime = isodate.toLocaleDateString() + ' ' + isodate.toLocaleTimeString();
+		const service = req.body;
+		console.log('🚀🚀: run -> service', service);
+		const fullServices = {...service, date: localDateTime};
+		const result = await medizCollection.insertOne(fullServices);
+		res.send(result);
+	});
 	//*get service by ID
 	app.get('/service/:id', async (req, res) => {
 		//*get Service Id
