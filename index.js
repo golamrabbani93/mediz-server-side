@@ -18,7 +18,6 @@ const client = new MongoClient(uri, {
 });
 function verifyJWT(req, res, next) {
 	const authHeader = req.headers.authorization;
-	console.log('🚀🚀: verifyJWT -> authHeader', authHeader);
 
 	if (!authHeader) {
 		return res.status(401).send({message: 'unauthorized access'});
@@ -37,6 +36,7 @@ async function run() {
 	//*get all services
 	const medizCollection = client.db('mediz').collection('Services');
 	const reviewCollection = client.db('mediz').collection('Reviews');
+	const aboutCollection = client.db('mediz').collection('About');
 
 	app.post('/jwt', (req, res) => {
 		const user = req.body;
@@ -127,6 +127,7 @@ async function run() {
 		const result = await reviewCollection.findOne(query);
 		res.send(result);
 	});
+	//*update review
 	app.put('/review/:id', async (req, res) => {
 		const id = req.params.id;
 		const review = req.body;
@@ -143,6 +144,13 @@ async function run() {
 			},
 		};
 		const result = await reviewCollection.updateOne(filter, updateReview, option);
+		res.send(result);
+	});
+	//*about
+	app.get('/about', async (req, res) => {
+		const query = {};
+		const cursor = aboutCollection.find(query);
+		const result = await cursor.toArray();
 		res.send(result);
 	});
 }
