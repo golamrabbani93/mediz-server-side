@@ -95,10 +95,13 @@ async function run() {
 		console.log(review);
 		const filter = {_id: ObjectId(id)};
 		const option = {upsert: true};
+		var isodate = new Date();
+		var localDateTime = isodate.toLocaleDateString() + ' ' + isodate.toLocaleTimeString();
 		const updateReview = {
 			$set: {
 				name: review.name,
 				message: review.message,
+				date: localDateTime,
 			},
 		};
 		const result = await reviewCollection.updateOne(filter, updateReview, option);
