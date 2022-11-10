@@ -75,11 +75,8 @@ async function run() {
 	});
 	//*send review server to database
 	app.post('/review', async (req, res) => {
-		var isodate = new Date();
-		var localDateTime = isodate.toLocaleDateString() + ' ' + isodate.toLocaleTimeString();
 		const review = req.body;
-		const fullReview = {...review, date: localDateTime};
-		const result = await reviewCollection.insertOne(fullReview);
+		const result = await reviewCollection.insertOne(review);
 		res.send(result);
 	});
 	//*get review by sevice id
